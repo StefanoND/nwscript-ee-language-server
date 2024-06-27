@@ -142,6 +142,11 @@
               "default": false,
               "description": "Whether or not the compiler report warnings."
             },
+            "nwnIncludes": {
+              "type": "string",
+              "default": "",
+              "description": ";-separated list of include dirs."
+            },
             "nwnHome": {
               "type": "string",
               "default": "",
