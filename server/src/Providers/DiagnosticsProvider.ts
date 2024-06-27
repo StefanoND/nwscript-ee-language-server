@@ -15,6 +15,7 @@ enum OS {
   linux = "Linux",
   mac = "Darwin",
   windows = "Windows_NT",
+  wine = "Wine" // for advanced nwn2 script compiler
 }
 
 type FilesDiagnostics = { [uri: string]: Diagnostic[] };
@@ -57,6 +58,8 @@ export default class DiagnoticsProvider extends Provider {
         return "../resources/compiler/mac/nwnsc";
       case OS.windows:
         return "../resources/compiler/windows/nwnsc.exe";
+      case OS.wine:
+        return "../resources/compiler/wine/run-nwn2sc";
       default:
         return "";
     }

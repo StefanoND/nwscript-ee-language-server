@@ -130,7 +130,7 @@
             "os": {
               "type": "string",
               "default": null,
-              "description": "Force to use a specific os executable. Darwin, Linux or Windows_NT."
+              "description": "Force to use a specific os executable. Darwin, Linux, Windows_NT or Wine."
             },
             "verbose": {
               "type": "boolean",
