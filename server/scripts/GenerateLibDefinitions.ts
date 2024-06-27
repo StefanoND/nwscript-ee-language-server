@@ -26,8 +26,22 @@ const generateDefinitions = async () => {
     const lib = readFileSync(fileSource).toString();
 
     // Skip main files
-    if (!lib.includes("main")) {
-      const definitions = tokenizer.tokenizeContent(lib, TokenizedScope.global);
+    if (!lib.includes("main(")) {
+      const definitions = (() => {
+        try {
+          let definitions = tokenizer.tokenizeContent(lib, TokenizedScope.global);
+          return definitions;
+        }
+        catch(e) {
+          console.log(`tokenizing in ${filename} fucked up`);
+          console.log((e as Error).message);
+          return undefined;
+        }
+      })();
+      // early out
+      if (definitions == undefined)
+        return;
+
       if (
         definitions.children.length === 0 &&
         definitions.complexTokens.length === 0 &&
