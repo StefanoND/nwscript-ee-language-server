@@ -82,8 +82,11 @@ export default class DiagnoticsProvider extends Provider {
 
   public publish(uri: string) {
     return new Promise<boolean>((resolve, reject) => {
-      const { enabled, nwnHome, reportWarnings, nwnInstallation, verbose, os, nwnIncludes } = this.server.config.compiler;
-      if (!enabled || uri.includes("nwscript.nss")) {
+      const { enabled, os, verbose, reportWarnings, nwnHome, nwnInstallation, workspaceIncludes, nwn2BaseIncludes, nwnBaseIncludes, nwneeBaseIncludes } = this.server.config.compiler;
+
+      this.server.logger.error(`I got those includes: ${workspaceIncludes}`);
+
+      if (!enabled || uri.includes("nwscript.nss") || uri.includes("nwscript.NSS")) {
         return resolve(true);
       }
 
@@ -126,11 +129,10 @@ export default class DiagnoticsProvider extends Provider {
       //  - n; game installation path
       //  - i; includes directories
       const args = this.getExecutableDefArgs(os);
-
       // early out
       if (args.length == 0)
         return;
-
+      // NOTE: These are not needed if workspace includes setup works
       // if (Boolean(nwnHome)) {
       //   args.push("-h");
       //   args.push(`"${nwnHome}"`);
@@ -143,11 +145,17 @@ export default class DiagnoticsProvider extends Provider {
       // } else if (verbose) {
       //   this.server.logger.info("Trying to resolve Neverwinter Nights installation directory automatically.");
       // }
-      if (children.length > 0) {
-        args.push("-i");
-        args.push(nwnIncludes);
-        // args.push(`"${[...new Set(uris.map((uri) => dirname(fileURLToPath(uri))))].join(";")}"`);
-      }
+      // if (children.length > 0) {
+      //   args.push("-i");
+      //   // TODO: figure out includes per workspace setup
+      //   // args.push(workspaceIncludes);
+      //   // args.push(`"${[...new Set(uris.map((uri) => dirname(fileURLToPath(uri))))].join(";")}"`);
+      //   args.push(workspaceIncludes);
+      // }
+
+      args.push("-i");
+      args.push(workspaceIncludes.reduce((inc, acc) => `${inc};${acc}`));
+
       args.push(`"${fileURLToPath(uri)}"`);
 
       let stdout = "";
