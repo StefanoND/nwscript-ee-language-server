@@ -142,15 +142,42 @@
               "default": false,
               "description": "Whether or not the compiler report warnings."
             },
-            "nwnIncludes": {
-              "type": "string",
-              "default": "",
-              "description": ";-separated list of include dirs."
+            "nwneeBaseIncludes": {
+              "type": "array",
+              "default": [],
+              "description": "List of base include dirs for Neverwinter Nights Enhanced Edition.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "nwnBaseIncludes": {
+              "type": "array",
+              "default": [],
+              "description": "List of base include dirs for Neverwinter Nights Diamond.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "nwn2BaseIncludes": {
+              "type": "array",
+              "default": [],
+              "description": "List of base include dirs fro Neverwinter Nights 2",
+              "items": {
+                "type": "string"
+              }
             },
             "nwnHome": {
               "type": "string",
               "default": "",
               "description": "Your Neverwinter Nights home directory."
+            },
+            "localIncludes": {
+              "type": "array",
+              "default": [],
+              "description": "Include directories for current workspace",
+              "items": {
+                "type": "string"
+              }
             },
             "nwnInstallation": {
               "type": "string",
