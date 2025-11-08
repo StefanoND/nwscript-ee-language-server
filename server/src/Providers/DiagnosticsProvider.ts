@@ -15,6 +15,7 @@ enum OS {
   linux = "Linux",
   mac = "Darwin",
   windows = "Windows_NT",
+  wine = "Wine", // For advanced nwn2 script compiler
 }
 
 type FilesDiagnostics = { [uri: string]: Diagnostic[] };
@@ -47,6 +48,21 @@ export default class DiagnoticsProvider extends Provider {
     return ([...Object.values(OS).filter((item) => isNaN(Number(item)))] as string[]).includes(type());
   }
 
+  private getExecutableDefArgs(os: OS | null) {
+    const specifiedOs = os || type();
+
+    switch (specifiedOs) {
+        case OS.wine:
+          return ["-y", "-b", "SKIP_OUTPUT"];
+        case OS.linux:
+        case OS.mac:
+        case OS.windows:
+          return ["-y", "-c", "-r", "SKIP_OUTPUT"];
+        default:
+          return [];
+    }
+  }
+
   private getExecutablePath(os: OS | null) {
     const specifiedOs = os || type();
 
@@ -57,6 +73,8 @@ export default class DiagnoticsProvider extends Provider {
         return "../resources/compiler/mac/nwnsc";
       case OS.windows:
         return "../resources/compiler/windows/nwnsc.exe";
+      case OS.wine:
+        return "../resources/compiler/wine/nwn2sc.exe";
       default:
         return "";
     }
@@ -64,8 +82,11 @@ export default class DiagnoticsProvider extends Provider {
 
   public publish(uri: string) {
     return new Promise<boolean>((resolve, reject) => {
-      const { enabled, nwnHome, reportWarnings, nwnInstallation, verbose, os } = this.server.config.compiler;
-      if (!enabled || uri.includes("nwscript.nss")) {
+      const { enabled, nwnHome, reportWarnings, nwnInstallation, verbose, os, workspaceIncludes, nwn2BaseIncludes, nwnBaseIncludes, nwneeBaseIncludes } = this.server.config.compiler;
+
+      this.server.logger.error(`I got those includes: ${workspaceIncludes}`);
+
+      if (!enabled || uri.includes("nwscript.nss") || uri.includes("NWSCRIPT.nss") || uri.includes("nwscript.NSS") || uri.includes("NWSCRIPT.NSS")) {
         return resolve(true);
       }
 
@@ -98,6 +119,7 @@ export default class DiagnoticsProvider extends Provider {
       if (verbose) {
         this.server.logger.info(`Compiling ${document.uri}:`);
       }
+
       // The compiler command:
       //  - y; continue on error
       //  - c; compile includes
@@ -106,23 +128,34 @@ export default class DiagnoticsProvider extends Provider {
       //  - h; game home path
       //  - n; game installation path
       //  - i; includes directories
-      const args = ["-y", "-c", "-l", "-r", "SKIP_OUTPUT"];
-      if (Boolean(nwnHome)) {
-        args.push("-h");
-        args.push(`"${nwnHome}"`);
-      } else if (verbose) {
-        this.server.logger.info("Trying to resolve Neverwinter Nights home directory automatically.");
-      }
-      if (Boolean(nwnInstallation)) {
-        args.push("-n");
-        args.push(`"${nwnInstallation}"`);
-      } else if (verbose) {
-        this.server.logger.info("Trying to resolve Neverwinter Nights installation directory automatically.");
-      }
-      if (children.length > 0) {
-        args.push("-i");
-        args.push(`"${[...new Set(uris.map((uri) => dirname(fileURLToPath(uri))))].join(";")}"`);
-      }
+     const args = this.getExecutableDefArgs(os);
+      // early out
+      if (args.length == 0)
+        return;
+      // NOTE: These are not needed if workspace includes setup works
+      // if (Boolean(nwnHome)) {
+      //   args.push("-h");
+      //   args.push(`"${nwnHome}"`);
+      // } else if (verbose) {
+      //   this.server.logger.info("Trying to resolve Neverwinter Nights home directory automatically.");
+      // }
+      // if (Boolean(nwnInstallation)) {
+      //   args.push("-n");
+      //   args.push(`"${nwnInstallation}"`);
+      // } else if (verbose) {
+      //   this.server.logger.info("Trying to resolve Neverwinter Nights installation directory automatically.");
+      // }
+      // if (children.length > 0) {
+      //   args.push("-i");
+      //   // TODO: figure out includes per workspace setup
+      //   // args.push(workspaceIncludes);
+      //   // args.push(`"${[...new Set(uris.map((uri) => dirname(fileURLToPath(uri))))].join(";")}"`);
+      //   args.push(workspaceIncludes);
+      // }
+
+      args.push("-i");
+      args.push(workspaceIncludes.reduce((inc, acc) => `${inc};${acc}`));
+
       args.push(`"${fileURLToPath(uri)}"`);
 
       let stdout = "";

@@ -32,6 +32,10 @@ const defaultServerConfiguration = {
     reportWarnings: true,
     nwnHome: "",
     nwnInstallation: "",
+    nwneeBaseIncludes: [],
+    nwnBaseIncludes: [],
+    nwn2BaseIncludes: [],
+    workspaceIncludes: []
   },
 };
 /* eslint-enable @typescript-eslint/naming-convention */
