@@ -32,6 +32,10 @@ const defaultServerConfiguration = {
     reportWarnings: false,
     nwnHome: "",
     nwnInstallation: "",
+    nwneeBaseIncludes: [],
+    nwnBaseIncludes: [],
+    nwn2BaseIncludes: [],
+    workspaceIncludes: [],
   },
 };
 

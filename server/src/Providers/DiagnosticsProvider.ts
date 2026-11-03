@@ -34,7 +34,7 @@ export default class DiagnoticsProvider extends Provider {
   public async publish(uri: string) {
     return await new Promise<boolean>((resolve) => {
       const compilerSettings = JSON.stringify(this.server.config.compiler);
-      const { enabled, nwnHome, reportWarnings, nwnInstallation, verbose, os } = this.server.config.compiler;
+      const { enabled, nwnHome, reportWarnings, nwnInstallation, verbose, os, workspaceIncludes, nwn2BaseIncludes, nwnBaseIncludes, nwneeBaseIncludes } = this.server.config.compiler;
       if (!enabled) {
         this.configurationChanged();
         return resolve(true);
